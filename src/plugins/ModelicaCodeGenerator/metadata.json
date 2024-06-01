@@ -1,0 +1,15 @@
+{
+  "id": "ModelicaCodeGenerator",
+  "name": "ModelicaCodeGenerator",
+  "version": "0.1.0",
+  "description": "Generates Modelica Code for Electrical Circuits",
+  "icon": {
+    "class": "glyphicon glyphicon-cog",
+    "src": ""
+  },
+  "disableServerSideExecution": false,
+  "disableBrowserSideExecution": false,
+  "dependencies": [],
+  "writeAccessRequired": false,
+  "configStructure": []
+}
