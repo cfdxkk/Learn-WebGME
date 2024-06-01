@@ -23,6 +23,6 @@ config.requirejsPaths = {
 };
 
 
-config.mongo.uri = 'mongodb://127.0.0.1:27017/test1';
+config.mongo.uri = 'mongodb://root:123456@127.0.0.1:27017';
 validateConfig(config);
 module.exports = config;
