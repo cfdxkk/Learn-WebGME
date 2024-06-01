@@ -9,79 +9,76 @@
 
 // Requirejs dependencies / Requirejs 依赖项
 define([
-    'plugin/PluginConfig',
-    'text!./metadata.json',
-    'plugin/PluginBase'
+	'plugin/PluginConfig',
+	'text!./metadata.json',
+	'plugin/PluginBase'
 ], function (
-    PluginConfig,
-    pluginMetadata,
-    PluginBase) {
-    'use strict';
+	PluginConfig,
+	pluginMetadata,
+	PluginBase) {
+	'use strict';
 
-    pluginMetadata = JSON.parse(pluginMetadata);
+	pluginMetadata = JSON.parse(pluginMetadata);
 
-    /**
-     * Initializes a new instance of ModelicaCodeGenerator.
-     * @class
-     * @augments {PluginBase}
-     * @classdesc This class represents the plugin ModelicaCodeGenerator.
-     * @constructor
-     */
-    function ModelicaCodeGenerator() {
-        // Call base class' constructor.
-        PluginBase.call(this);
-        this.pluginMetadata = pluginMetadata;
-    }
+	/**
+	 * Initializes a new instance of ModelicaCodeGenerator.
+	 * @class
+	 * @augments {PluginBase}
+	 * @classdesc This class represents the plugin ModelicaCodeGenerator.
+	 * @constructor
+	 */
+	function ModelicaCodeGenerator() {
+		// Call base class' constructor.
+		PluginBase.call(this);
+		this.pluginMetadata = pluginMetadata;
+	}
 
-    /**
-     * Metadata associated with the plugin. Contains id, name, version, description, icon, configStructure etc.
-     * This is also available at the instance at this.pluginMetadata.
-     * @type {object}
-     */
-    ModelicaCodeGenerator.metadata = pluginMetadata;
+	/**
+	 * Metadata associated with the plugin. Contains id, name, version, description, icon, configStructure etc.
+	 * This is also available at the instance at this.pluginMetadata.
+	 * @type {object}
+	 */
+	ModelicaCodeGenerator.metadata = pluginMetadata;
 
-    // Prototypical inheritance from PluginBase.
-    ModelicaCodeGenerator.prototype = Object.create(PluginBase.prototype);
-    ModelicaCodeGenerator.prototype.constructor = ModelicaCodeGenerator;
+	// Prototypical inheritance from PluginBase.
+	ModelicaCodeGenerator.prototype = Object.create(PluginBase.prototype);
+	ModelicaCodeGenerator.prototype.constructor = ModelicaCodeGenerator;
 
-    /**
-     * Main function for the plugin to execute. This will perform the execution.
-     * Notes:
-     * - Always log with the provided logger.[error,warning,info,debug].
-     * - Do NOT put any user interaction logic UI, etc. inside this method.
-     * - callback always has to be called even if error happened.
-     *
-     * @param {function(Error|null, plugin.PluginResult)} callback - the result callback
-     */
-    ModelicaCodeGenerator.prototype.main = function (callback) {
-        // Use this to access core, project, result, logger etc from PluginBase.
-        const self = this;
+	/**
+	 * Main function for the plugin to execute. This will perform the execution.
+	 * Notes:
+	 * - Always log with the provided logger.[error,warning,info,debug].
+	 * - Do NOT put any user interaction logic UI, etc. inside this method.
+	 * - callback always has to be called even if error happened.
+	 *
+	 * @param {function(Error|null, plugin.PluginResult)} callback - the result callback
+	 */
+	ModelicaCodeGenerator.prototype.main = function (callback) {
+		// Use this to access core, project, result, logger etc from PluginBase.
+		const self = this;
 
-        // Using the logger.
-        self.logger.debug('This is a debug message.');
-        self.logger.info('This is an info message.');
-        self.logger.warn('This is a warning message.');
-        self.logger.error('This is an error message.');
+		// Using the logger.
+		self.logger.debug('This is a debug message.');
+		self.logger.info('This is an info message.');
+		self.logger.warn('This is a warning message.');
+		self.logger.error('This is an error message.');
 
-        // Using the coreAPI to make changes.
-        const nodeObject = self.activeNode;
-        self.core.setAttribute(nodeObject, 'name', 'My new obj');
-        self.core.setRegistry(nodeObject, 'position', {x: 70, y: 70});
+		// Preload the sub-tree from activeNode (all chinldren from the circuits)
+		self.loadNodeMap(this.activeNode)
+			.then((nodes) => {
+				let nodePath, node
+				for (nodePath in nodes) {
+					self.logger.info(self.core.getAttribute(nodes[nodePath], 'name'), 'has path', nodePath)
+				}
+				self.result.setSuccess(true);
+				callback(null, self.result);
+			})
+			.catch((err) => {
+					// Result success is false at invocation.
+					self.logger.error(err.stack);
+					callback(err, self.result);
+			});
+	};
 
-
-        // This will save the changes. If you don't want to save;
-        // exclude self.save and call callback directly from this scope.
-        self.save('ModelicaCodeGenerator updated model.')
-            .then(() => {
-                self.result.setSuccess(true);
-                callback(null, self.result);
-            })
-            .catch((err) => {
-                // Result success is false at invocation.
-                self.logger.error(err.stack);
-                callback(err, self.result);
-            });
-    };
-
-    return ModelicaCodeGenerator;
+	return ModelicaCodeGenerator;
 });
