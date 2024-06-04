@@ -55,21 +55,80 @@ define([
 	 */
 	ModelicaCodeGenerator.prototype.main = function (callback) {
 		// Use this to access core, project, result, logger etc from PluginBase.
-		const self = this;
+		const self = this,
+			core = this.core,
+			logger = this.logger,
+			modelJson = {
+				name: '',
+				components: [],
+				connections: [],
+			},
+			activeNode = this.activeNode;
 
-		// Using the logger.
-		self.logger.debug('This is a debug message.');
-		self.logger.info('This is an info message.');
-		self.logger.warn('This is a warning message.');
-		self.logger.error('This is an error message.');
+		function atComponent (node) {
+			const componentData = {
+				URI: '',
+				name: '',
+				parameters: {},
+			}
+			componentData.URI = core.getAttribute(node, 'ModelicaURI')
+			componentData.name = core.getAttribute(node, 'name')
+
+			modelJson.components.push(componentData)
+		}
+
+		function atConnection (nodes, node) {
+			const connData = {
+				src: '',
+				dst: '',
+			}
+			
+			// Node is a connection node -> it should have two pointers src and dst.
+			// th target of these are the two connected ports.
+			const srcPath = core.getPointerPath(node , 'src')
+			const dstPath = core.getPointerPath(node , 'dst')
+
+			// incas there is no src or dst the connection is not wired and should be skipped.
+			if (srcPath && dstPath) {
+				const srcNode = nodes[srcPath] // Again we use the node-map to go from path to node
+				const dstNode = nodes[dstPath]
+
+				const srcParent = core.getParent(srcNode) // parents (and bases too) are always leaded for a node
+				const dstParent = core.getParent(dstNode) // so no need to use the node-map here
+
+				// to get the modelica path to the port inside a component there names are concatenated, e.g.
+				// Ground.p
+				connData.src = core.getAttribute(srcParent, 'name') + ',' + core.getAttribute(srcNode, 'name')
+				connData.dst = core.getAttribute(dstParent, 'name') + ',' + core.getAttribute(dstNode, 'name')
+
+				modelJson.connections.push(connData)
+			}
+		}
 
 		// Preload the sub-tree from activeNode (all chinldren from the circuits)
 		self.loadNodeMap(this.activeNode)
 			.then((nodes) => {
 				let nodePath, node
+
 				for (nodePath in nodes) {
 					self.logger.info(self.core.getAttribute(nodes[nodePath], 'name'), 'has path', nodePath)
 				}
+
+				modelJson.name = core.getAttribute(activeNode, 'name')
+
+				// Get all the children paths of the activeNode
+				const childrenPaths = core.getChildrenPaths(activeNode)
+				for (let i = 0; i < childrenPaths.length; i++) {
+					node = nodes[childrenPaths[i]] // using the node mpa loaded above
+					if (self.isMetaTypeOf(node, self.META.Component)) {
+						atComponent(node)
+					} else if (self.isMetaTypeOf(node, self.META.Connection)) {
+						atConnection(nodes, node)
+					}
+				}
+
+				logger.info('extracted data: \n', JSON.stringify(modelJson, null, 2))
+
 				self.result.setSuccess(true);
 				callback(null, self.result);
 			})
