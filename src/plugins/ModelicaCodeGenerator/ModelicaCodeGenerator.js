@@ -105,6 +105,24 @@ define([
 			}
 		}
 
+		function getMoFileContent() {
+			let moFile = `model ${modelJson.name}`
+
+			modelJson.components.forEach(data => {
+				moFile += `\n ${data.URI} ${data.name};`
+			})
+
+			moFile += '\nequation'
+
+			modelJson.connections.forEach(data => {
+				moFile += `\n connect(${data.src}, ${data.dst});`
+			})
+
+			moFile += `\nend ${modelJson.name};`
+
+			return moFile
+		}
+
 		// Preload the sub-tree from activeNode (all chinldren from the circuits)
 		self.loadNodeMap(this.activeNode)
 			.then((nodes) => {
@@ -129,6 +147,14 @@ define([
 
 				logger.info('extracted data: \n', JSON.stringify(modelJson, null, 2))
 
+				const moFileContent = getMoFileContent()
+
+				console.log('aaaaaaaa', moFileContent)
+
+				return self.blobClient.putFile(`${modelJson.name}.mo`, moFileContent)
+			})
+			.then(metadataHash => {
+				self.result.addArtifact(metadataHash)
 				self.result.setSuccess(true);
 				callback(null, self.result);
 			})
