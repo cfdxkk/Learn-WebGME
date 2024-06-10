@@ -98,8 +98,8 @@ define([
 
 				// to get the modelica path to the port inside a component there names are concatenated, e.g.
 				// Ground.p
-				connData.src = core.getAttribute(srcParent, 'name') + ',' + core.getAttribute(srcNode, 'name')
-				connData.dst = core.getAttribute(dstParent, 'name') + ',' + core.getAttribute(dstNode, 'name')
+				connData.src = core.getAttribute(srcParent, 'name') + '.' + core.getAttribute(srcNode, 'name')
+				connData.dst = core.getAttribute(dstParent, 'name') + '.' + core.getAttribute(dstNode, 'name')
 
 				modelJson.connections.push(connData)
 			}

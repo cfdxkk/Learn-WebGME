@@ -32,3 +32,9 @@ build/Release
 node_modules
 tmp/
 blob-local-storage/
+
+#ignore output
+output/
+.output/
+outputs/
+.outputs/

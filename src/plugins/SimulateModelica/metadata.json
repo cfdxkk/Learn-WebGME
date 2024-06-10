@@ -1,0 +1,30 @@
+{
+  "id": "SimulateModelica",
+  "name": "SimulateModelica",
+  "version": "0.1.0",
+  "description": "Simulates the Circuit and stores the result in the model.",
+  "icon": {
+    "class": "glyphicon glyphicon-cog",
+    "src": ""
+  },
+  "disableServerSideExecution": false,
+  "disableBrowserSideExecution": true,
+  "writeAccessRequired": true,
+  "configStructure": [
+		{
+			"name": "stopTime",
+			"displayName": "stopTime",
+			"description": "Stop time of simulation",
+			"value": 1,
+			"valueType": "number",
+			"minValue": 0,
+			"readOnly": false
+		}
+	],
+	"dependencies": [
+		{
+			"id": "ModelicaCodeGenerator",
+			"propagateConfig": true
+		}
+	]
+}

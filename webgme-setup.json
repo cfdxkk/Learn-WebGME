@@ -4,6 +4,10 @@
       "ModelicaCodeGenerator": {
         "src": "src/plugins/ModelicaCodeGenerator",
         "test": "test/plugins/ModelicaCodeGenerator"
+      },
+      "SimulateModelica": {
+        "src": "src/plugins/SimulateModelica",
+        "test": "test/plugins/SimulateModelica"
       }
     }
   },
